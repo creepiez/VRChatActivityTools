@@ -1,26 +1,46 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VRChatActivityLogger", "VRChatActivityLogger\VRChatActivityLogger.csproj", "{9AA67FBA-9964-4FC2-8894-79786EF81F36}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VRChatActivityToolsShared", "..\VRChatActivityToolsShared\VRChatActivityToolsShared\VRChatActivityToolsShared.csproj", "{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VRChatActivityDbMigrator", "VRChatActivityDbMigrator\VRChatActivityDbMigrator.csproj", "{F1D80321-14F8-48C5-A02B-CA0310544C6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Debug|x64.ActiveCfg = Debug|x64
+		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Debug|x64.Build.0 = Debug|x64
 		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Release|x64.ActiveCfg = Release|x64
+		{9AA67FBA-9964-4FC2-8894-79786EF81F36}.Release|x64.Build.0 = Release|x64
 		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Debug|x64.ActiveCfg = Debug|x64
+		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Debug|x64.Build.0 = Debug|x64
 		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Release|x64.ActiveCfg = Release|x64
+		{7DF3B522-F999-4B58-BC05-C75E2A9DB1E9}.Release|x64.Build.0 = Release|x64
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Debug|x64.ActiveCfg = Debug|x64
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Debug|x64.Build.0 = Debug|x64
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Release|x64.ActiveCfg = Release|x64
+		{F1D80321-14F8-48C5-A02B-CA0310544C6F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

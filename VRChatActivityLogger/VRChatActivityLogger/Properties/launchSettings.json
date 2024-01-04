@@ -2,7 +2,10 @@
   "profiles": {
     "VRChatActivityLogger": {
       "commandName": "Project",
-      "commandLineArgs": "-console true"
+      "commandLineArgs": "-console true",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }

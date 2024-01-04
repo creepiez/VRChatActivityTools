@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using Microsoft.Extensions.Configuration;
 
 namespace VRChatActivityLogger
 {
     class Program
     {
+        //遅延ロードなのでWindows以外でもコールしない限り例外にはならない模様
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         private static extern bool AllocConsole();
 
@@ -14,22 +19,33 @@ namespace VRChatActivityLogger
         /// <param name="rawArgs"></param>
         static int Main(string[] rawArgs)
         {
-
+            var logger = Logger.GetLogger();
             var args = new Argument(rawArgs)
             {
-                NamedParameters = new Dictionary<string, string> {
+                NamedParameters = new Dictionary<string, string>
+                {
                     { "console", "true" },
                 }
             };
-            if (args.NamedParameters["console"].ToLower() != "false")
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && args.NamedParameters["console"].ToLower() != "false")
             {
                 AllocConsole();
             }
-
-            var logger = Logger.GetLogger();
             logger.Info("VRChatActivityLoggerを実行します。");
 
-            var app = new VRChatActivityLogger();
+            var env = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? string.Empty;
+            var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                   .AddJsonFile("appsettings.json")
+                                                   .AddJsonFile($"appsettings.{env}.json", true)
+                                                   .Build();
+            var app = new VRChatActivityLogger(new VRChatActivityToolsShared.Database.DbConfig(config));
+
+            //VRCログファイルの検索先指定があればそちらを使う
+            var vrc = config.GetSection("VRChat");
+            if (vrc != null && !string.IsNullOrEmpty(vrc["LogFileDir"]))
+            {
+                app.VRChatLogFilePath = vrc["LogFileDir"];
+            }
             var returnCode = app.Run();
 
             logger.Info("VRChatActivityLoggerを終了します。");

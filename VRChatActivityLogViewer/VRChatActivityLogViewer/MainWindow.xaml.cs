@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using VRChatActivityToolsShared.Database;
+using Microsoft.Extensions.Configuration;
 
 namespace VRChatActivityLogViewer
 {
@@ -20,12 +21,19 @@ namespace VRChatActivityLogViewer
 
         private readonly string errorFilePath = "./Logs/VRChatActivityLogger/errorfile.txt";
 
+        private readonly IConfigurationRoot _configuration;
+
+        private readonly DbOperatorFactory _dbOperatorFactory;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public MainWindow()
         {
             InitializeComponent();
+
+            _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _dbOperatorFactory = new DbOperatorFactory(new DbConfig(_configuration));
 
             DisableProcessingMode();
 
@@ -55,9 +63,12 @@ namespace VRChatActivityLogViewer
                 EnableProcessingMode();
 
                 // DBが古い場合はアップグレードする
-                if (DatabaseMigration.GetCurrentVersion() < DatabaseContext.Version)
+                using (var context = _dbOperatorFactory.GetDbContext())
                 {
-                    DatabaseMigration.UpgradeDatabase();
+                    if (_dbOperatorFactory.DbMigration.GetCurrentVersion(context) < ActivityContextBase.Version)
+                    {
+                        _dbOperatorFactory.DbMigration.UpgradeDatabase(context);
+                    }
                 }
 
                 var parameter = new ActivityLogSearchParameter
@@ -79,7 +90,7 @@ namespace VRChatActivityLogViewer
                     IsAcceptInvite = acptInvCheckBox.IsChecked ?? false,
                     IsAcceptRequestInvite = acptReqInvCheckBox.IsChecked ?? false,
                 };
-                var activityLogs = await VRChatActivityLogModel.SearchActivityLogs(parameter);
+                var activityLogs = await VRChatActivityLogModel.SearchActivityLogsAsync(parameter, _dbOperatorFactory);
 
                 var keywords = keywordBox.Text.Split(' ').Where(s => s != string.Empty).ToArray();
 
@@ -280,13 +291,16 @@ namespace VRChatActivityLogViewer
             Mouse.OverrideCursor = null;
             loggerButton.IsEnabled = true;
 
-            if (File.Exists(DatabaseContext.DBFilePath))
+            using (var context = _dbOperatorFactory.GetDbContext())
             {
-                searchButton.IsEnabled = true;
-            }
-            else
-            {
-                searchButton.IsEnabled = false;
+                if (context.Database.CanConnect())
+                {
+                    searchButton.IsEnabled = true;
+                }
+                else
+                {
+                    searchButton.IsEnabled = false;
+                }
             }
         }
 
