@@ -80,6 +80,8 @@ VRChatActivityLogger.exe -console false
 #### `.ConnectionStrings.VRChatActivityLog`
 DBへの接続文字列です。
 
+SQLiteモードのみ、空文字を指定すると`(カレントディレクトリ)\VRChatActivityLog.db`となります。
+
 詳細は各EFCoreのドキュメントをご覧ください。
 
 [MySQL .NET Connection String Options](https://mysqlconnector.net/connection-options/)
@@ -193,6 +195,8 @@ The sample is below.
 #### `.ConnectionStrings.VRChatActivityLog`
 
 Connection string to your DB.
+
+In only SQLite mode, if you set empty string the path set to `(current dir.)\VRChatActivityLog.db`.
 
 Details for see each EFCore documents.
 

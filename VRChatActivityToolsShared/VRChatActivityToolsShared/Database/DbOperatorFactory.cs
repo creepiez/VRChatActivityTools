@@ -11,11 +11,6 @@ namespace VRChatActivityToolsShared.Database
     public class DbOperatorFactory
     {
         /// <summary>
-        /// コンテキスト
-        /// </summary>
-        private ActivityContextBase _context;
-
-        /// <summary>
         /// バージョン移行オブジェクト
         /// </summary>
         public IDbMigration DbMigration { get; private set; }
@@ -50,27 +45,24 @@ namespace VRChatActivityToolsShared.Database
         /// <returns></returns>
         public ActivityContextBase GetDbContext()
         {
-            if (_context?.Disposed != false)
+            ActivityContextBase context;
+            var connectionString = _config.ConnectionString;
+            var builder = new DbContextOptionsBuilder<ActivityContextBase>();
+            switch (_config.DbKind)
             {
-                var connectionString = _config.ConnectionString;
-                var builder = new DbContextOptionsBuilder<ActivityContextBase>();
-                //コンテキストがnullかDisposeされている場合
-                switch (_config.DbKind)
-                {
-                    case DbKind.SQLite:
-                        builder.UseSqlite(connectionString);
-                        _context = new ActivityContextSQLite(builder.Options);
-                        break;
-                    case DbKind.MariaDB:
-                        builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-                        _context = new ActivityContextMariaDb(builder.Options);
-                        break;
-                    default:
-                        break;
-                }
+                case DbKind.SQLite:
+                    builder.UseSqlite(connectionString);
+                    context = new ActivityContextSQLite(builder.Options);
+                    break;
+                case DbKind.MariaDB:
+                    builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+                    context = new ActivityContextMariaDb(builder.Options);
+                    break;
+                default:
+                    throw new NotSupportedException();
             }
 
-            return _context;
+            return context;
         }
     }
 }

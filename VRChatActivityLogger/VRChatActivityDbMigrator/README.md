@@ -49,12 +49,12 @@ Designed for migrating whole relations between SQLite and MariaDB.
 # English
 ## Not implemented
 - Function to create by tables
-  - Becaouse of there is no such situations only one table missing.
-    Another reason for the EFCore does not suppot create one table.
-    Yes, there is solution for implemantation but I'm lazy.
+  - Because of there is no such situations only one table missing.
+    Another reason for the EFCore does not support create one table.
+    Yes, there is solution for implementation but I'm lazy.
 
 ## Installing
-No binaly. Build yourself. I'm lazy.
+No binary. Build yourself. I'm lazy.
 
 ## Usage
 First make sure create `appsettings.json`.
