@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -52,6 +53,7 @@ namespace VRChatActivityLogViewer
         {
             try
             {
+                // 処理中モード開始
                 EnableProcessingMode();
 
                 // DBが古い場合はアップグレードする
@@ -60,6 +62,7 @@ namespace VRChatActivityLogViewer
                     DatabaseMigration.UpgradeDatabase();
                 }
 
+                // ログの検索
                 var parameter = new ActivityLogSearchParameter
                 {
                     IsJoinedRoom = joinCheckBox.IsChecked ?? false,
@@ -81,26 +84,107 @@ namespace VRChatActivityLogViewer
                 };
                 var activityLogs = await VRChatActivityLogModel.SearchActivityLogs(parameter);
 
-                var keywords = keywordBox.Text.Split(' ').Where(s => s != string.Empty).ToArray();
+                // 選択アイテムの保存
+                var selectedItem = ActivityLogGrid.SelectedItem as ActivityLogGridModel;
 
+                // グリッド作成
                 ActivityLogGridModelCollection.Clear();
 
-                foreach (var activityLog in activityLogs)
-                {
-                    var gridModel = new ActivityLogGridModel(activityLog);
+                var keywords = keywordBox.Text.Split(' ').Where(s => s != string.Empty).ToArray();
 
-                    if (keywords.Any())
+                if (smartSearchCheckBox.IsChecked)
+                {
+                    // スマート検索
+                    var tmpList = new List<ActivityLogGridModel>();
+
+                    for (var i = 0; i < activityLogs.Count; i++)
                     {
-                        var contained = keywords.All(k => gridModel.Content?.Contains(k, StringComparison.CurrentCultureIgnoreCase) ?? false);
-                        if (!contained)
+                        var gridModel = new ActivityLogGridModel(activityLogs[i]);
+
+                        if (keywords.Any())
                         {
-                            continue;
+                            var contained = keywords.All(k => gridModel.Content?.Contains(k, StringComparison.CurrentCultureIgnoreCase) ?? false);
+
+                            if (!contained)
+                            {
+                                continue;
+                            }
                         }
+
+                        if (gridModel.Type != ActivityType.JoinedRoom)
+                        {
+                            ActivityLog relatedJoin = null;
+
+                            for (var j = i; 0 <= j; j--)
+                            {
+                                if (activityLogs[j].ActivityType == ActivityType.JoinedRoom)
+                                {
+                                    relatedJoin = activityLogs[j];
+
+                                    break;
+                                }
+                            }
+
+                            ActivityLog latestJoin = null;
+
+                            for (var j = tmpList.Count - 1; 0 <= j; j--)
+                            {
+                                if (tmpList[j].Type == ActivityType.JoinedRoom)
+                                {
+                                    latestJoin = tmpList[j].Source;
+
+                                    break;
+                                }
+                            }
+
+                            if (relatedJoin != null && relatedJoin != latestJoin)
+                            {
+                                tmpList.Add(new ActivityLogGridModel(relatedJoin));
+                            }
+                        }
+
+                        tmpList.Add(gridModel);
                     }
 
-                    ActivityLogGridModelCollection.Add(gridModel);
+                    foreach (var gridModel in tmpList.OrderByDescending(a => a.TimeStamp))
+                    {
+                        ActivityLogGridModelCollection.Add(gridModel);
+                    }
+                }
+                else
+                {
+                    // 従来の検索
+                    foreach (var activityLog in activityLogs.OrderByDescending(a => a.Timestamp))
+                    {
+                        var gridModel = new ActivityLogGridModel(activityLog);
+
+                        if (keywords.Any())
+                        {
+                            var contained = keywords.All(k => gridModel.Content?.Contains(k, StringComparison.CurrentCultureIgnoreCase) ?? false);
+
+                            if (!contained)
+                            {
+                                continue;
+                            }
+                        }
+
+                        ActivityLogGridModelCollection.Add(gridModel);
+                    }
                 }
 
+                // 選択アイテムの復元
+                if (selectedItem != null)
+                {
+                    var newSelectedItem = ActivityLogGridModelCollection.FirstOrDefault(a => a.Source.ID == selectedItem.Source.ID);
+
+                    if (newSelectedItem != null)
+                    {
+                        ActivityLogGrid.SelectedItem = newSelectedItem;
+                        ActivityLogGrid.ScrollIntoView(ActivityLogGrid.SelectedItem);
+                    }
+                }
+
+                // 処理中モード終了
                 DisableProcessingMode();
             }
             catch (Exception)
@@ -288,6 +372,8 @@ namespace VRChatActivityLogViewer
             {
                 searchButton.IsEnabled = false;
             }
+
+            ActivityLogGrid.Focus();
         }
 
         /// <summary>

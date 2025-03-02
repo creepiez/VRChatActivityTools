@@ -56,7 +56,6 @@ namespace VRChatActivityLogViewer
                         .Where(a => searchActivityTypes.Contains(a.ActivityType))
                         .Where(a => a.Timestamp >= parameter.FromDateTime)
                         .Where(a => a.Timestamp < parameter.UntilDateTime)
-                        .OrderByDescending(a => a.Timestamp)
                         .ToList();
                 }
                 return activityLogs;
