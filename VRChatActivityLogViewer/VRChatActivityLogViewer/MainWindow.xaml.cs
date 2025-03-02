@@ -482,5 +482,10 @@ namespace VRChatActivityLogViewer
                 DisableProcessingMode();
             }
         }
+
+        private void KeywordClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            keywordBox.Clear();
+        }
     }
 }
