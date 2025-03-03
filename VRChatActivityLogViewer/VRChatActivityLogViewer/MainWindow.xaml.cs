@@ -27,11 +27,22 @@ namespace VRChatActivityLogViewer
         public MainWindow()
         {
             InitializeComponent();
+        }
 
+        /// <summary>
+        /// ウィンドウロード時の処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             DisableProcessingMode();
+
+            periodComboBox.SelectedIndex = 0;
 
             fromDatePicker.SelectedDate = DateTime.Today.AddDays(-1);
             untilDatePicker.SelectedDate = DateTime.Today;
+
             ActivityLogGrid.ItemsSource = ActivityLogGridModelCollection;
         }
 
@@ -62,6 +73,49 @@ namespace VRChatActivityLogViewer
                     DatabaseMigration.UpgradeDatabase();
                 }
 
+                // 検索期間の計算
+                DateTime? fromDate = default;
+                DateTime? untilDate = default;
+
+                if (periodComboBox.SelectedItem is ComboBoxItem periodItem)
+                {
+                    if (periodItem != null)
+                    {
+                        var period = (SearchPeriod)periodItem.Tag;
+
+                        if (period == SearchPeriod.Recent)
+                        {
+                            fromDate = DateTime.Today.AddDays(-1);
+                            untilDate = DateTime.Today;
+                        }
+                        else if (period == SearchPeriod.OneWeek)
+                        {
+                            fromDate = DateTime.Today.AddDays(-7);
+                            untilDate = DateTime.Today;
+                        }
+                        else if (period == SearchPeriod.OneMonth)
+                        {
+                            fromDate = DateTime.Today.AddDays(-30);
+                            untilDate = DateTime.Today;
+                        }
+                        else if (period == SearchPeriod.OneYear)
+                        {
+                            fromDate = DateTime.Today.AddDays(-365);
+                            untilDate = DateTime.Today;
+                        }
+                        else if (period == SearchPeriod.All)
+                        {
+                            fromDate = DateTime.Parse("1970/01/01 00:00:00");
+                            untilDate = DateTime.Parse("3000/12/31 23:59:59");
+                        }
+                        else if (period == SearchPeriod.Custom)
+                        {
+                            fromDate = fromDatePicker.SelectedDate;
+                            untilDate = untilDatePicker.SelectedDate;
+                        }
+                    }
+                }
+
                 // ログの検索
                 var parameter = new ActivityLogSearchParameter
                 {
@@ -74,8 +128,8 @@ namespace VRChatActivityLogViewer
                     IsSendFriendRequest = sendFriendReqCheckBox.IsChecked ?? false,
                     IsReceivedFriendRequest = recvFriendReqCheckBox.IsChecked ?? false,
                     IsAcceptFriendRequest = acptFriendReqCheckBox.IsChecked ?? false,
-                    FromDateTime = fromDatePicker.SelectedDate,
-                    UntilDateTime = untilDatePicker.SelectedDate?.AddDays(1),
+                    FromDateTime = fromDate,
+                    UntilDateTime = untilDate?.AddDays(1),
                     IsReceivedInviteResponse = recvInvResCheckBox.IsChecked ?? false,
                     IsReceivedRequestInviteResponse = recvReqInvResCheckBox.IsChecked ?? false,
                     IsPlayedVideo = videoCheckBox.IsChecked ?? false,
@@ -483,9 +537,46 @@ namespace VRChatActivityLogViewer
             }
         }
 
+        /// <summary>
+        /// キーワードクリアボタン押下時のイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void KeywordClearButton_Click(object sender, RoutedEventArgs e)
         {
             keywordBox.Clear();
         }
+
+        /// <summary>
+        /// 検索期間コンボボックス選択時のイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void periodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox)
+            {
+                if (comboBox.SelectedItem is ComboBoxItem item)
+                {
+                    if (item.Tag != null && (SearchPeriod)item.Tag == SearchPeriod.Custom)
+                    {
+                        customRange.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        customRange.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+    }
+    public enum SearchPeriod
+    {
+        Recent,
+        OneWeek,
+        OneMonth,
+        OneYear,
+        All,
+        Custom,
     }
 }
