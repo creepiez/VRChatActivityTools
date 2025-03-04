@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VRChatActivityLogViewer"
         xmlns:shareddb="clr-namespace:VRChatActivityToolsShared.Database;assembly=VRChatActivityToolsShared"
         mc:Ignorable="d"
-        Title="VRChatActivityLogViewer" Height="700" Width="800" WindowStartupLocation="CenterScreen">
+        Title="VRChatActivityLogViewer" Height="700" Width="800" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
 
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo x:Name="taskbarInfo"/>
@@ -42,6 +42,9 @@
                     <MenuItem Header="Register" Click="RegisterTaskSchedulerMenuItem_Click"/>
                     <MenuItem Header="Unregister" Click="UnregisterTaskSchedulerMenuItem_Click"/>
                 </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Options">
+                <MenuItem x:Name="smartSearchCheckBox" Header="Enable SmartSearch" IsCheckable="True" IsChecked="True" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="About" Click="AboutMenuItem_Click"/>
@@ -103,9 +106,19 @@
                     </StackPanel>
                     <StackPanel Grid.Row="5" Orientation="Horizontal">
                         <TextBlock Width="50" TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" >Period</TextBlock>
-                        <DatePicker x:Name="fromDatePicker" Margin="3" />
-                        <Label Margin="0,3,0,0">～</Label>
-                        <DatePicker x:Name="untilDatePicker" Margin="3" />
+                        <ComboBox x:Name="periodComboBox" Margin="0,3,5,3" SelectionChanged="periodComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Recent" Tag="{x:Static local:SearchPeriod.Recent}" />
+                            <ComboBoxItem Content="1 Week" Tag="{x:Static local:SearchPeriod.OneWeek}" />
+                            <ComboBoxItem Content="1 Month" Tag="{x:Static local:SearchPeriod.OneMonth}" />
+                            <ComboBoxItem Content="1 Year" Tag="{x:Static local:SearchPeriod.OneYear}" />
+                            <ComboBoxItem Content="All" Tag="{x:Static local:SearchPeriod.All}" />
+                            <ComboBoxItem Content="Custom" Tag="{x:Static local:SearchPeriod.Custom}" />
+                        </ComboBox>
+                        <StackPanel x:Name="customRange" Orientation="Horizontal">
+                            <DatePicker x:Name="fromDatePicker" Margin="3" />
+                            <Label Margin="0,3,0,0">～</Label>
+                            <DatePicker x:Name="untilDatePicker" Margin="3" />
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Column="1">
@@ -114,8 +127,9 @@
                         <RowDefinition Height="30" />
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <TextBlock Width="50" TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" >Keyword</TextBlock>
-                        <TextBox x:Name="keywordBox" Width="100" Margin="0,3" VerticalContentAlignment="Center" KeyDown="keywordBox_KeyDown"/>
+                        <TextBlock Width="50" TextAlignment="Right" VerticalAlignment="Center" Margin="10,0,10,0" >Keyword</TextBlock>
+                        <TextBox x:Name="keywordBox" Width="100" Margin="0,3,5,3" VerticalContentAlignment="Center" KeyDown="keywordBox_KeyDown"/>
+                        <Button Margin="0,3,0,3" Width="25" Foreground="PaleVioletRed" Click="KeywordClearButton_Click">X</Button>
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Column="2" HorizontalAlignment="Right">

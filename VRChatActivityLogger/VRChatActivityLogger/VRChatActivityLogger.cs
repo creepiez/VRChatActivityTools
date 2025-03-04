@@ -74,6 +74,7 @@ namespace VRChatActivityLogger
                 // DB更新
                 using (var db = new DatabaseContext())
                 {
+                    // 既にDBに登録されているログは登録対象から削除する
                     var lastActivity = db.ActivityLogs.Find(db.ActivityLogs.Max(a => a.ID));
                     if (lastActivity != null)
                     {
@@ -93,6 +94,29 @@ namespace VRChatActivityLogger
                         lastActivity.ID = idBackup;
                     }
 
+                    // IDの同じフレンドリクエストは登録対象から削除する
+                    foreach (var log in activityLogs.Where(l => l.ActivityType == ActivityType.ReceivedFriendRequest).ToArray())
+                    {
+                        var isDuplicated = 
+
+                        // 登録対象の中に重複がある
+                        activityLogs.Any(x => 
+                            x.ActivityType == ActivityType.ReceivedFriendRequest && 
+                            x.NotificationID == log.NotificationID && 
+                            x.Timestamp < log.Timestamp) ||
+
+                        // DB上に重複がある
+                        db.ActivityLogs.Any(x =>
+                            x.ActivityType == ActivityType.ReceivedFriendRequest &&
+                            x.NotificationID == log.NotificationID);
+
+                        if (isDuplicated)
+                        {
+                            activityLogs.Remove(log);
+                        }
+                    }
+
+                    // DBに登録する
                     using (var transaction = db.Database.BeginTransaction())
                     {
                         try
